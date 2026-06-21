@@ -30,10 +30,12 @@ export const Sidebar: React.FC = () => {
   const [customCategory, setCustomCategory] = useState('Transformations');
   const [customDesc, setCustomDesc] = useState('');
   const [customCode, setCustomCode] = useState(
-    '# input_df is loaded automatically\n# Write your code here and store the result in output_df\noutput_df = input_df.copy()\n'
+    '# Read from inputs_dict, write to outputs_dict\n# Example: outputs_dict["output"] = inputs_dict["input"].copy()\n'
   );
   
   const [parameters, setParameters] = useState<Array<{ name: string; label: string; type: string; required: boolean }>>([]);
+  const [customInputs, setCustomInputs] = useState<string[]>(['input']);
+  const [customOutputs, setCustomOutputs] = useState<string[]>(['output']);
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
@@ -66,7 +68,9 @@ export const Sidebar: React.FC = () => {
         label: p.label || p.name,
         type: p.type,
         required: p.required
-      }))
+      })),
+      inputs: customInputs.filter(Boolean),
+      outputs: customOutputs.filter(Boolean)
     };
 
     try {
@@ -90,6 +94,8 @@ export const Sidebar: React.FC = () => {
         setCustomName('');
         setCustomDesc('');
         setParameters([]);
+        setCustomInputs(['input']);
+        setCustomOutputs(['output']);
         fetchNodeMetadata();
       }
     } catch (err) {
@@ -235,6 +241,36 @@ export const Sidebar: React.FC = () => {
                     </Box>
                   ))}
                   <Button startIcon={<AddIcon />} size="small" onClick={handleAddParam}>Add Parameter</Button>
+                </Box>
+                
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>Input Ports</Typography>
+                  {customInputs.map((port, index) => (
+                    <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
+                      <TextField size="small" placeholder="Port Name (e.g. left_data)" value={port} onChange={(e) => {
+                        const newInputs = [...customInputs];
+                        newInputs[index] = e.target.value;
+                        setCustomInputs(newInputs);
+                      }} fullWidth />
+                      <IconButton onClick={() => setCustomInputs(customInputs.filter((_, i) => i !== index))} color="error"><DeleteIcon /></IconButton>
+                    </Box>
+                  ))}
+                  <Button startIcon={<AddIcon />} size="small" onClick={() => setCustomInputs([...customInputs, ''])}>Add Input Port</Button>
+                </Box>
+
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>Output Ports</Typography>
+                  {customOutputs.map((port, index) => (
+                    <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
+                      <TextField size="small" placeholder="Port Name (e.g. success)" value={port} onChange={(e) => {
+                        const newOutputs = [...customOutputs];
+                        newOutputs[index] = e.target.value;
+                        setCustomOutputs(newOutputs);
+                      }} fullWidth />
+                      <IconButton onClick={() => setCustomOutputs(customOutputs.filter((_, i) => i !== index))} color="error"><DeleteIcon /></IconButton>
+                    </Box>
+                  ))}
+                  <Button startIcon={<AddIcon />} size="small" onClick={() => setCustomOutputs([...customOutputs, ''])}>Add Output Port</Button>
                 </Box>
               </Grid>
 

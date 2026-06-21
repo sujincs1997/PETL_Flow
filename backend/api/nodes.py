@@ -55,6 +55,13 @@ def create_custom_node(
     
     params_code_block = ",\n".join(params_str_list)
 
+    # Build input/output port metadata strings
+    inputs_str_list = [f'        PortMetadata(name="{i}", label="{i}", type="any")' for i in payload.inputs]
+    outputs_str_list = [f'        PortMetadata(name="{o}", label="{o}", type="any")' for o in payload.outputs]
+    
+    inputs_code_block = ",\n".join(inputs_str_list) if inputs_str_list else ""
+    outputs_code_block = ",\n".join(outputs_str_list) if outputs_str_list else ""
+
     # Clean indentation for user execution body
     indented_user_code = "\n".join([f"        {line}" for line in user_code.splitlines()])
 
@@ -77,20 +84,40 @@ class {type_name}(BaseNode):
     ]
     
     inputs_schema = [
-        PortMetadata(name="input", label="Input DataFrame", type="any")
+{inputs_code_block}
     ]
     outputs_schema = [
-        PortMetadata(name="output", label="Output DataFrame", type="any")
+{outputs_code_block}
     ]
 
     def execute(self, input_data: dict) -> dict:
-        input_df = input_data.get("input")
-        # --- Start User Executable Code ---
-{indented_user_code}
-        # --- End User Executable Code ---
-        if 'output_df' not in locals() and 'output_df' not in globals():
-            raise ValueError("Your custom script must assign results to the 'output_df' variable.")
-        return {{"output": locals().get('output_df')}}
+        # Execution environment variables
+        local_vars = {{
+            "inputs_dict": input_data,
+            "outputs_dict": {{}},
+            "pd": pd,
+            "gpd": gpd
+        }}
+        
+        # Backwards compatibility for old scripts expecting input_df / output_df
+        if "input" in input_data:
+            local_vars["input_df"] = input_data["input"]
+        local_vars["output_df"] = None
+        
+        # Run user code
+        exec(
+            \"\"\"{user_code}\"\"\",
+            {{}},
+            local_vars
+        )
+        
+        outputs = local_vars.get("outputs_dict", {{}})
+        
+        # Backwards compatibility fallback
+        if not outputs and local_vars.get("output_df") is not None:
+            outputs["output"] = local_vars["output_df"]
+            
+        return outputs
 """
 
     # Write class out to a custom nodes module

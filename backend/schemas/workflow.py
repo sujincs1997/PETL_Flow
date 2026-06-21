@@ -65,3 +65,5 @@ class CustomNodeBuilderSchema(BaseModel):
     description: str = Field(default="", description="Quick help label")
     code: str = Field(..., description="Python execute script body")
     parameters: List[Dict[str, Any]] = Field(default=[], description="Form parameter definitions")
+    inputs: List[str] = Field(default=["input"], description="Input port names")
+    outputs: List[str] = Field(default=["output"], description="Output port names")
