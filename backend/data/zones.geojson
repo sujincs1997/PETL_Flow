@@ -1,0 +1,38 @@
+{
+  "type": "FeatureCollection",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "zone_id": 101, "zone_name": "Downtown-Financial District", "tax_rate": 0.05 },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-71.070, 42.365],
+            [-71.050, 42.365],
+            [-71.050, 42.350],
+            [-71.070, 42.350],
+            [-71.070, 42.365]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "zone_id": 102, "zone_name": "Fenway-Kenmore", "tax_rate": 0.06 },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-71.110, 42.352],
+            [-71.090, 42.352],
+            [-71.090, 42.340],
+            [-71.110, 42.340],
+            [-71.110, 42.352]
+          ]
+        ]
+      }
+    }
+  ]
+}

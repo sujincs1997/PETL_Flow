@@ -1,0 +1,120 @@
+{
+  "name": "Sample Spatial ETL Pipeline",
+  "description": "CSV Reader -> Attribute Filter -> XY to Point Creator -> Coordinate Converter -> Buffer -> Spatial Join -> GeoJSON Writer",
+  "nodes": [
+    {
+      "id": "csv_reader_1",
+      "type": "CSVReader",
+      "config": {
+        "file_path": "/app/data/stores.csv",
+        "delimiter": ",",
+        "has_header": true
+      },
+      "position": { "x": 100, "y": 200 }
+    },
+    {
+      "id": "filter_1",
+      "type": "AttributeFilter",
+      "config": {
+        "query": "revenue > 500000"
+      },
+      "position": { "x": 350, "y": 200 }
+    },
+    {
+      "id": "point_creator_1",
+      "type": "PointCreatorNode",
+      "config": {
+        "longitude_col": "longitude",
+        "latitude_col": "latitude",
+        "crs": "EPSG:4326"
+      },
+      "position": { "x": 600, "y": 200 }
+    },
+    {
+      "id": "converter_1",
+      "type": "CoordinateConverter",
+      "config": {
+        "target_crs": "EPSG:3857"
+      },
+      "position": { "x": 850, "y": 200 }
+    },
+    {
+      "id": "buffer_1",
+      "type": "BufferNode",
+      "config": {
+        "distance": 150.0,
+        "single_geometry": false
+      },
+      "position": { "x": 1100, "y": 200 }
+    },
+    {
+      "id": "geojson_reader_1",
+      "type": "GeoJSONReader",
+      "config": {
+        "file_path": "/app/data/municipal_zones.geojson"
+      },
+      "position": { "x": 1100, "y": 420 }
+    },
+    {
+      "id": "spatial_join_1",
+      "type": "SpatialJoinNode",
+      "config": {
+        "how": "left",
+        "predicate": "within"
+      },
+      "position": { "x": 1380, "y": 280 }
+    },
+    {
+      "id": "geojson_writer_1",
+      "type": "GeoJSONWriter",
+      "config": {
+        "file_path": "/app/data/output_buffered_stores.geojson"
+      },
+      "position": { "x": 1650, "y": 280 }
+    }
+  ],
+  "edges": [
+    {
+      "source": "csv_reader_1",
+      "target": "filter_1",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "source": "filter_1",
+      "target": "point_creator_1",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "source": "point_creator_1",
+      "target": "converter_1",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "source": "converter_1",
+      "target": "buffer_1",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "source": "buffer_1",
+      "target": "spatial_join_1",
+      "sourceHandle": "output",
+      "targetHandle": "left"
+    },
+    {
+      "source": "geojson_reader_1",
+      "target": "spatial_join_1",
+      "sourceHandle": "output",
+      "targetHandle": "right"
+    },
+    {
+      "source": "spatial_join_1",
+      "target": "geojson_writer_1",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    }
+  ]
+}
