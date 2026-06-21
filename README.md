@@ -62,7 +62,7 @@ Start the Vite development server:
 bash
 
 npm run dev
-Open your browser and navigate to http://localhost:5173.
+Open your browser and navigate to http://localhost:3000.
 
 📖 How It Works (Usage)
 Drag Nodes: Open the left sidebar and drag a node (e.g. CSV Reader) onto the canvas.
@@ -82,3 +82,8 @@ Write your execution code natively in Python, reading from inputs_dict and writi
 Click Compile & Register. The node is now permanently added to your toolkit!
 📜 License
 This project is licensed under the MIT License.
+
+
+
+<img width="1907" height="950" alt="image" src="https://github.com/user-attachments/assets/505d8d4e-7528-4bd1-9e55-16cc84cb46e8" />
+
