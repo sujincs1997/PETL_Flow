@@ -78,6 +78,7 @@ def debug_me(current_user: User = Depends(get_current_user)):
     """Return the authenticated user for debugging purposes"""
     return current_user
 
+@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(
         (User.username == user_in.username) | (User.email == user_in.email)

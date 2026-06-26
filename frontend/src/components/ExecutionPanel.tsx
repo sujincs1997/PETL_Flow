@@ -134,7 +134,7 @@ export const ExecutionPanel: React.FC = () => {
                     userSelect: 'none' 
                   }}
                 >
-                  [{new Date(log.timestamp).toLocaleTimeString()}]
+                  [{new Date(log.timestamp.endsWith('Z') ? log.timestamp : log.timestamp + 'Z').toLocaleTimeString()}]
                 </Typography>
                 
                 <Typography 

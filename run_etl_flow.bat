@@ -5,7 +5,7 @@ REM  Run the complete ETL Flow environment (backend + frontend)
 REM -------------------------------------------------
 
 REM 1️⃣ Start FastAPI backend in a new console window
-start "Backend" cmd /k "cd /d %~dp0 && uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload"
+start "Backend" cmd /k "cd /d %~dp0 && uvicorn backend.main:app --host 0.0.0.0 --port 8001 --reload"
 
 REM Give the backend a moment to start up
 timeout /t 5 >nul

@@ -64,7 +64,10 @@ def get_workflows(
     db: Session = Depends(get_db),
     current_user: User = Depends(check_viewer_or_above)
 ):
-    return db.query(Workflow).filter(Workflow.is_active == True).all()
+    return db.query(Workflow).filter(
+        Workflow.is_active == True,
+        Workflow.owner_id == current_user.id
+    ).all()
 
 @router.get("/{workflow_id}", response_model=WorkflowResponse)
 def get_workflow(
@@ -72,7 +75,11 @@ def get_workflow(
     db: Session = Depends(get_db),
     current_user: User = Depends(check_viewer_or_above)
 ):
-    workflow = db.query(Workflow).filter(Workflow.id == workflow_id, Workflow.is_active == True).first()
+    workflow = db.query(Workflow).filter(
+        Workflow.id == workflow_id, 
+        Workflow.is_active == True,
+        Workflow.owner_id == current_user.id
+    ).first()
     if not workflow:
         raise HTTPException(status_code=404, detail="Workflow not found.")
     return workflow
@@ -84,7 +91,10 @@ def update_workflow(
     db: Session = Depends(get_db),
     current_user: User = Depends(check_developer_or_admin)
 ):
-    workflow = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+    workflow = db.query(Workflow).filter(
+        Workflow.id == workflow_id,
+        Workflow.owner_id == current_user.id
+    ).first()
     if not workflow:
         raise HTTPException(status_code=404, detail="Workflow not found.")
 
@@ -130,7 +140,10 @@ def delete_workflow(
     db: Session = Depends(get_db),
     current_user: User = Depends(check_developer_or_admin)
 ):
-    workflow = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+    workflow = db.query(Workflow).filter(
+        Workflow.id == workflow_id,
+        Workflow.owner_id == current_user.id
+    ).first()
     if not workflow:
         raise HTTPException(status_code=404, detail="Workflow not found.")
     

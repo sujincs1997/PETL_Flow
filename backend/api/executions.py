@@ -23,6 +23,7 @@ check_viewer_or_above = RoleChecker(["Admin", "Developer", "Analyst", "Viewer"])
 def run_workflow(
     workflow_id: str,
     background_tasks: BackgroundTasks,
+    debug_mode: bool = False,
     db: Session = Depends(get_db),
     current_user: User = Depends(check_analyst_or_above)
 ):
@@ -40,12 +41,15 @@ def run_workflow(
     db.commit()
     db.refresh(execution)
 
-    # Attempt Celery run; fallback to background thread on connection error
-    try:
-        execute_workflow_task.delay(str(execution.id))
-    except Exception as e:
-        # Fallback to local execution thread (ideal for desktop mode without Docker)
-        background_tasks.add_task(run_workflow_execution, str(execution.id))
+    # Attempt Celery run only if enabled; otherwise use background thread directly
+    if settings.USE_CELERY:
+        try:
+            execute_workflow_task.delay(str(execution.id), debug_mode)
+        except Exception as e:
+            background_tasks.add_task(run_workflow_execution, str(execution.id), debug_mode)
+    else:
+        # Fast local execution thread without Redis timeout delays
+        background_tasks.add_task(run_workflow_execution, str(execution.id), debug_mode)
 
     return execution
 

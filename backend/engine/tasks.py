@@ -46,7 +46,7 @@ def load_dataframe(path: str) -> Any:
         return pd.read_parquet(path)
 
 
-def run_workflow_execution(execution_id: str):
+def run_workflow_execution(execution_id: str, debug_mode: bool = False):
     """
     Main visual ETL pipeline executor.
     Can be run in Celery worker or in a local background thread.
@@ -73,10 +73,15 @@ def run_workflow_execution(execution_id: str):
         db.add(log_entry)
         db.commit()
 
-    write_log("Starting workflow execution task.")
+    mode_str = "DEBUG MODE (Disk Caching)" if debug_mode else "FAST MODE (In-Memory)"
+    start_time_str = execution.started_at.strftime('%Y-%m-%d %H:%M:%S UTC')
+    write_log(f"Starting workflow execution task in {mode_str} at {start_time_str}.")
     
     # Set execution ID in environment so nodes (e.g. InspectorNode) can locate their cache directory
     os.environ["ETL_EXECUTION_ID"] = str(execution.id)
+    
+    # In-memory dataframe cache for blazing fast execution
+    memory_cache = {}
     
     try:
         workflow = db.query(Workflow).filter(Workflow.id == execution.workflow_id).first()
@@ -102,7 +107,7 @@ def run_workflow_execution(execution_id: str):
             
             write_log(f"Executing node [{node.node_key}] of type '{node.type}'...", "INFO", node_key)
             
-            # Load inputs from parquet cache
+            # Load inputs from memory cache
             inputs = {}
             incoming_edges = executor.get_node_inputs(node_key)
             for edge in incoming_edges:
@@ -110,11 +115,16 @@ def run_workflow_execution(execution_id: str):
                 src_handle = edge["source_handle"]
                 tgt_handle = edge["target_handle"]
                 
-                cache_file = get_cache_path(execution.id, src, src_handle)
-                if not os.path.exists(cache_file):
-                    raise FileNotFoundError(f"Input file not found for port '{tgt_handle}' on node '{node_key}'. Expected cache: {cache_file}")
-                
-                inputs[tgt_handle] = load_dataframe(cache_file)
+                cache_key = f"{src}_{src_handle}"
+                if cache_key in memory_cache:
+                    # Pass the in-memory dataframe directly
+                    inputs[tgt_handle] = memory_cache[cache_key]
+                else:
+                    # Fallback to disk if not in memory (e.g. edge cases, though shouldn't happen in single run)
+                    cache_file = get_cache_path(execution.id, src, src_handle)
+                    if not os.path.exists(cache_file):
+                        raise FileNotFoundError(f"Input file not found for port '{tgt_handle}' on node '{node_key}'. Expected cache: {cache_file}")
+                    inputs[tgt_handle] = load_dataframe(cache_file)
             
             # Run node execution
             node_instance = node_class(node.node_key, node.config)
@@ -127,11 +137,15 @@ def run_workflow_execution(execution_id: str):
             # Execute node logic
             outputs = node_instance.execute(inputs)
             
-            # Save output ports to cache
+            # Save output ports to memory cache (and disk if debug_mode)
             for out_port, out_df in outputs.items():
                 if out_df is not None:
-                    cache_file = get_cache_path(execution.id, node_key, out_port)
-                    save_dataframe(out_df, cache_file)
+                    cache_key = f"{node_key}_{out_port}"
+                    memory_cache[cache_key] = out_df
+                    
+                    if debug_mode:
+                        cache_file = get_cache_path(execution.id, node_key, out_port)
+                        save_dataframe(out_df, cache_file)
                     
             write_log(f"Node [{node.node_key}] completed successfully.", "INFO", node_key)
 
@@ -139,7 +153,9 @@ def run_workflow_execution(execution_id: str):
         execution.status = "COMPLETED"
         execution.completed_at = datetime.utcnow()
         db.commit()
-        write_log("Workflow completed successfully.")
+        
+        time_taken = (execution.completed_at - execution.started_at).total_seconds()
+        write_log(f"Workflow completed successfully in {time_taken:.2f} seconds.")
         
     except Exception as e:
         error_msg = f"Execution failed: {str(e)}"
@@ -154,8 +170,10 @@ def run_workflow_execution(execution_id: str):
         
     finally:
         db.close()
+        # Free memory cache
+        memory_cache.clear()
 
 # Celery Task Wrapper
 @celery_app.task(name="execute_workflow_task", bind=True)
-def execute_workflow_task(self, execution_id: str):
-    run_workflow_execution(execution_id)
+def execute_workflow_task(self, execution_id: str, debug_mode: bool = False):
+    run_workflow_execution(execution_id, debug_mode)

@@ -11,6 +11,7 @@ class Settings(BaseSettings):
         "DATABASE_URL", "postgresql://etl_user:etl_password@localhost:5432/etl_db"
     )
     DEBUG_AUTH: bool = os.getenv("DEBUG_AUTH", "true").lower() == "true"
+    USE_CELERY: bool = os.getenv("USE_CELERY", "false").lower() == "true"
     
     INTERMEDIATE_STORAGE_PATH: str = os.getenv(
         "INTERMEDIATE_STORAGE_PATH", "./tmp/etl_cache"

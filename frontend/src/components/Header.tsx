@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { 
   Box, Typography, Button, Stack, AppBar, Toolbar, 
   IconButton, Tooltip, Input, Dialog, DialogTitle, 
-  DialogContent, DialogActions, TextField
+  DialogContent, DialogActions, TextField, FormControlLabel, Switch
 } from '@mui/material';
 import { 
   PlayArrow as PlayIcon, 
@@ -11,7 +11,8 @@ import {
   FileUpload as ImportIcon,
   Map as MapIcon,
   CloudDownload as LoadIcon,
-  Edit as EditIcon
+  Edit as EditIcon,
+  Logout as LogoutIcon
 } from '@mui/icons-material';
 import { useWorkflowStore } from '../store/useWorkflowStore';
 import LoadWorkflowModal from './LoadWorkflowModal';
@@ -24,6 +25,8 @@ export const Header: React.FC = () => {
   const runWorkflow = useWorkflowStore((state) => state.runWorkflow);
   const saveWorkflow = useWorkflowStore((state) => state.saveWorkflow);
   const isExecuting = useWorkflowStore((state) => state.isExecuting);
+  const debugMode = useWorkflowStore((state) => state.debugMode);
+  const setDebugMode = useWorkflowStore((state) => state.setDebugMode);
   
   const nodes = useWorkflowStore((state) => state.nodes);
   const edges = useWorkflowStore((state) => state.edges);
@@ -250,6 +253,23 @@ export const Header: React.FC = () => {
             Save Pipeline
           </Button>
 
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={debugMode}
+                onChange={(e) => setDebugMode(e.target.checked)}
+                color="secondary"
+              />
+            }
+            label={
+              <Typography variant="body2" sx={{ fontWeight: 600, color: '#64748b' }}>
+                Cache to Disk
+              </Typography>
+            }
+            sx={{ mr: 1, ml: 1 }}
+          />
+
           <Button 
             size="small"
             variant="contained" 
@@ -268,6 +288,20 @@ export const Header: React.FC = () => {
             }}
           >
             {isExecuting ? 'Running...' : 'Execute DAG'}
+          </Button>
+
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            startIcon={<LogoutIcon />}
+            onClick={() => {
+              localStorage.removeItem('token');
+              window.location.reload();
+            }}
+            sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
+          >
+            Logout
           </Button>
         </Stack>
       </Toolbar>

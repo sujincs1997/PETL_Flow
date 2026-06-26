@@ -1,0 +1,132 @@
+{
+  "label": "Inspection Report",
+  "node_id": "inspectornode_1782054879326",
+  "overview": {
+    "row_count": 5,
+    "column_count": 3,
+    "memory_usage_mb": 0.001,
+    "is_geodataframe": true,
+    "data_type": "GeoDataFrame"
+  },
+  "schema": [
+    {
+      "column": "Description",
+      "dtype": "object",
+      "non_null_count": 5,
+      "null_count": 0,
+      "null_pct": 0.0
+    },
+    {
+      "column": "Name",
+      "dtype": "object",
+      "non_null_count": 5,
+      "null_count": 0,
+      "null_pct": 0.0
+    },
+    {
+      "column": "geometry",
+      "dtype": "geometry",
+      "non_null_count": 5,
+      "null_count": 0,
+      "null_pct": 0.0
+    }
+  ],
+  "geometry": {
+    "geometry_column": "geometry",
+    "crs": "GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AXIS[\"Latitude\",NORTH],AXIS[\"Longitude\",EAST],AUTHORITY[\"EPSG\",\"4326\"]]",
+    "crs_name": "WGS 84",
+    "crs_epsg": 4326,
+    "geometry_types": {
+      "Point": 5
+    },
+    "total_with_geometry": 5,
+    "empty_geometry_count": 0,
+    "bounding_box": {
+      "minx": -122.4373,
+      "miny": 13.403689,
+      "maxx": 75.286024,
+      "maxy": 37.789463
+    }
+  },
+  "statistics": {
+    "numeric": [],
+    "categorical": [
+      {
+        "column": "Description",
+        "unique_count": 2,
+        "top_values": {
+          "Type: pole Remarks: ": 4,
+          "Type: olt Remarks: ": 1
+        }
+      },
+      {
+        "column": "Name",
+        "unique_count": 1,
+        "top_values": {
+          "New Node": 5
+        }
+      }
+    ]
+  },
+  "sample_data": {
+    "head": [
+      {
+        "Description": "Type: pole Remarks: ",
+        "Name": "New Node",
+        "geometry": "POINT Z (-122.42337405681612 37.77200380939488 0)"
+      },
+      {
+        "Description": "Type: pole Remarks: ",
+        "Name": "New Node",
+        "geometry": "POINT Z (75.28602361679079 13.403688530348775 0)"
+      },
+      {
+        "Description": "Type: pole Remarks: ",
+        "Name": "New Node",
+        "geometry": "POINT Z (-122.43730008602144 37.789463417437524 0)"
+      },
+      {
+        "Description": "Type: olt Remarks: ",
+        "Name": "New Node",
+        "geometry": "POINT Z (-122.437300086 37.789463417 0)"
+      },
+      {
+        "Description": "Type: pole Remarks: ",
+        "Name": "New Node",
+        "geometry": "POINT Z (-122.43679046630861 37.77003627110174 0)"
+      }
+    ],
+    "tail": [
+      {
+        "Description": "Type: pole Remarks: ",
+        "Name": "New Node",
+        "geometry": "POINT Z (-122.42337405681612 37.77200380939488 0)"
+      },
+      {
+        "Description": "Type: pole Remarks: ",
+        "Name": "New Node",
+        "geometry": "POINT Z (75.28602361679079 13.403688530348775 0)"
+      },
+      {
+        "Description": "Type: pole Remarks: ",
+        "Name": "New Node",
+        "geometry": "POINT Z (-122.43730008602144 37.789463417437524 0)"
+      },
+      {
+        "Description": "Type: olt Remarks: ",
+        "Name": "New Node",
+        "geometry": "POINT Z (-122.437300086 37.789463417 0)"
+      },
+      {
+        "Description": "Type: pole Remarks: ",
+        "Name": "New Node",
+        "geometry": "POINT Z (-122.43679046630861 37.77003627110174 0)"
+      }
+    ],
+    "columns": [
+      "Description",
+      "Name",
+      "geometry"
+    ]
+  }
+}

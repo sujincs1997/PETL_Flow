@@ -12,8 +12,10 @@ interface WorkflowState {
   workflowDesc: string;
   isExecuting: boolean;
   activeExecution: Execution | null;
+  debugMode: boolean;
   
   // Actions
+  setDebugMode: (val: boolean) => void;
   fetchNodeMetadata: () => Promise<void>;
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
@@ -56,6 +58,9 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   workflowDesc: "Geospatial workflow process",
   isExecuting: false,
   activeExecution: null,
+  debugMode: false,
+
+  setDebugMode: (val) => set({ debugMode: val }),
 
   fetchNodeMetadata: async () => {
     try {
@@ -263,7 +268,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     set({ isExecuting: true, activeExecution: null });
     
     try {
-      const runRes = await fetch(`${API_BASE}/executions/run/${currentId}`, {
+      const runRes = await fetch(`${API_BASE}/executions/run/${currentId}?debug_mode=${get().debugMode}`, {
         method: 'POST',
         headers: getHeaders()
       });
